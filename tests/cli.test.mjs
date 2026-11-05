@@ -16,7 +16,13 @@ import { fileURLToPath } from "node:url";
 import { loadData, GUIDES } from "../cli/data.mjs";
 import { searchComponents } from "../cli/search.mjs";
 import { componentDetail, buildPacket } from "../cli/packet.mjs";
-import { auditApp, satisfies, jsxAttributes, RULES } from "../cli/audit.mjs";
+import {
+  auditApp,
+  blankStrings,
+  satisfies,
+  jsxAttributes,
+  RULES,
+} from "../cli/audit.mjs";
 import { TOOLS, validateArguments } from "../cli/tools.mjs";
 import {
   REMOVED_EXPORTS,
@@ -413,6 +419,221 @@ test("the audit detects copies, class overrides and palette classes", async (t) 
   assert.ok(has(report, "raw-colour", "src/Extra.tsx", /dark:text-white/));
   assert.ok(has(report, "styles-order", "src/late.css"));
   assert.ok(has(report, "css-override", "src/late.css", /data-m-component/));
+});
+
+test("the audit flags raw elements that a Mortar component replaces", async (t) => {
+  // #76: Hive's API keys panel shipped a raw <table> and the audit was clean.
+  const keys = [
+    "export const Keys = ({ rows }: { rows: string[] }) => (",
+    "  <table>",
+    "    <tbody>{rows.map((r) => <tr key={r}><td>{r}</td></tr>)}</tbody>",
+    "  </table>",
+    ");",
+  ].join("\n");
+  const form = [
+    'import { Button } from "@tonycodes-ui/mortar";',
+    'const email = "<table><tr><td>Hi</td></tr></table>";',
+    "export const Form = ({ kind }: { kind: string }) => (",
+    "  <form>",
+    '    <p>Don\'t <select name="plan" /></p>',
+    '    <input type="checkbox" />',
+    '    <input type={"email"} name="e" />',
+    "    <input type={kind} />",
+    '    <input type="hidden" name="csrf" />',
+    '    <input type="file" />',
+    "    <textarea />",
+    "    <button>Raw</button>",
+    "    <Button>Kit</Button>",
+    "  </form>",
+    ");",
+  ].join("\n");
+  const dir = fixture("clean-app", {
+    files: { "src/Keys.tsx": keys, "src/Form.tsx": form },
+  });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const report = await auditApp(dir);
+  const raw = report.findings
+    .filter((f) => f.rule === "raw-element")
+    .map((f) => [f.file, f.line, f.severity, f.message, f.fix]);
+  const use = (names, id) =>
+    `Use ${names} from "@tonycodes-ui/mortar" (mortar component ${id}).`;
+  assert.deepEqual(raw, [
+    [
+      "src/Form.tsx",
+      5,
+      "error",
+      "Raw <select> in an app that uses Mortar.",
+      use("<Select>", "Select"),
+    ],
+    [
+      "src/Form.tsx",
+      6,
+      "error",
+      'Raw <input type="checkbox"> in an app that uses Mortar.',
+      use("<Checkbox> or <Switch>", "Checkbox"),
+    ],
+    [
+      "src/Form.tsx",
+      7,
+      "error",
+      "Raw <input> in an app that uses Mortar.",
+      use("<Input>", "Input"),
+    ],
+    [
+      "src/Form.tsx",
+      8,
+      "error",
+      "Raw <input> in an app that uses Mortar.",
+      use("<Input>", "Input"),
+    ],
+    [
+      "src/Form.tsx",
+      11,
+      "error",
+      "Raw <textarea> in an app that uses Mortar.",
+      use("<TextArea>", "TextArea"),
+    ],
+    // A file that imports nothing from Mortar is still part of the app.
+    [
+      "src/Keys.tsx",
+      2,
+      "error",
+      "Raw <table> in an app that uses Mortar.",
+      use("<DataTable> or <Table>", "DataTable"),
+    ],
+    [
+      "src/Form.tsx",
+      12,
+      "warning",
+      "Raw <button> in an app that uses Mortar.",
+      use("<Button>", "Button"),
+    ],
+  ]);
+});
+
+test("a passing fixture that uses DataTable stays clean", async (t) => {
+  // #76: the failing raw <table> fixture has a pair that renders DataTable.
+  const dir = fixture("data-table-app");
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const source = readFileSync(join(dir, "src/App.tsx"), "utf8");
+  assert.match(source, /<DataTable\b/);
+  assert.match(
+    source,
+    /import\s*\{[^}]*\bDataTable\b[^}]*\}\s*from\s*"@tonycodes-ui\/mortar"/,
+  );
+  const report = await auditApp(dir);
+  assert.deepEqual(
+    report.findings.filter((f) => f.rule === "raw-element"),
+    [],
+  );
+  assert.deepEqual(report.findings, []);
+});
+
+/** Raw tags still visible after string and template contents are blanked. */
+function rawTags(src) {
+  return [
+    ...blankStrings(src).matchAll(
+      /<(table|select|textarea|dialog|progress)\b/g,
+    ),
+  ].map((m) => m[1]);
+}
+
+test("blankStrings blanks HTML in arrows, case, throw and nested templates", () => {
+  assert.deepEqual(
+    {
+      arrow: rawTags(
+        'const markup = () => "<table><tr><td>Hi</td></tr></table>";',
+      ),
+      bare: rawTags(
+        "const select = r => '<select><option>A</option></select>';",
+      ),
+      case: rawTags(
+        'switch (code) {\n  case "<textarea></textarea>":\n    break;\n}',
+      ),
+      throw: rawTags('throw "<dialog open></dialog>";'),
+      nested: rawTags(
+        'const nested = `<div>${ok ? `<table><tr></tr></table>` : ""}</div>`;',
+      ),
+      // A backtick quoted inside ${} must not swallow the next line.
+      quoted: rawTags('const label = `Count ${n ?? "`"}`;\nreturn <table />;'),
+      // JSX inside an interpolation is code, not template text.
+      jsx: rawTags("const view = `${<table />}`;"),
+      returned: rawTags('return "<table></table>";'),
+      apostrophe: rawTags(
+        "export const View = () => (\n  <p>Don't <select /></p>\n);",
+      ),
+    },
+    {
+      arrow: [],
+      bare: [],
+      case: [],
+      throw: [],
+      nested: [],
+      quoted: ["table"],
+      jsx: ["table"],
+      returned: [],
+      apostrophe: ["select"],
+    },
+  );
+});
+
+test("string and nested-template HTML is not reported as a raw element", async (t) => {
+  const file = [
+    'import { Button } from "@tonycodes-ui/mortar";',
+    'const arrow = () => "<table><tr><td>Hi</td></tr></table>";',
+    "const bare = r => '<select><option>A</option></select>';",
+    "export function status(code) {",
+    "  switch (code) {",
+    '    case "<textarea>note</textarea>":',
+    "      break;",
+    "    default:",
+    '      throw "<dialog>no</dialog>";',
+    "  }",
+    "}",
+    'const nested = `<div>${ok ? `<table><tr></tr></table>` : ""}</div>`;',
+    "export const Screen = () => <Button>Go</Button>;",
+  ].join("\n");
+  const dir = fixture("clean-app", { files: { "src/Strings.tsx": file } });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const report = await auditApp(dir);
+  assert.deepEqual(
+    report.findings.filter((f) => f.rule === "raw-element"),
+    [],
+  );
+});
+
+test("a quoted backtick inside a template does not hide a later raw element", async (t) => {
+  const file = [
+    'import { Button } from "@tonycodes-ui/mortar";',
+    'const label = `Count ${n ?? "`"}`;',
+    "export const View = () => (",
+    "  <table>",
+    "    <tbody />",
+    "  </table>",
+    ");",
+  ].join("\n");
+  const dir = fixture("clean-app", { files: { "src/Quoted.tsx": file } });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const report = await auditApp(dir);
+  const raw = report.findings
+    .filter((f) => f.rule === "raw-element")
+    .map((f) => [f.file, f.line, f.severity, f.message]);
+  assert.deepEqual(raw, [
+    ["src/Quoted.tsx", 4, "error", "Raw <table> in an app that uses Mortar."],
+  ]);
+});
+
+test("raw elements are not reported in an app that does not use Mortar", async (t) => {
+  const dir = fixture("clean-app", { version: null });
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  rmSync(join(dir, "src/App.tsx"));
+  writeFileSync(join(dir, "package.json"), JSON.stringify({ name: "x" }));
+  writeFileSync(
+    join(dir, "src/Plain.tsx"),
+    "export const Plain = () => <table />;\n",
+  );
+  const report = await auditApp(dir);
+  assert.ok(!has(report, "raw-element"));
 });
 
 test("the audit reports a missing install and declaration", async (t) => {
