@@ -104,6 +104,8 @@ Every template takes `productName`, and optionally `theme`, `logo`, `footer` (re
 | `Receipt`       | An order confirmation or receipt                  | `orderNumber`, `date`, `items`, `total`; optional `lines`, `paymentMethod`, `href` ("View order"), `title`              |
 | `Notification`  | A product notification                            | `title`, `children` (a string becomes a paragraph); optional `action` (`{ label, href }`), `preview`, `preferencesHref` |
 
+To see every template rendered, at phone and desktop widths and in three brands, with its plain-text part, open the playground's **Email preview** (`?page=email`).
+
 Send a password reset only to an address that has an account, and show the same "check your email" page either way, so the form never reveals whether an account exists.
 
 ## Rules

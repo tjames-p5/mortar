@@ -31,6 +31,18 @@ import "./styles.css";
 const BrandBuilder = lazy(() =>
   import("./brand-builder.js").then((m) => ({ default: m.BrandBuilder })),
 );
+const NativeGallery = lazy(() =>
+  import("./native-gallery.js").then((m) => ({ default: m.NativeGallery })),
+);
+const EmailPreview = lazy(() =>
+  import("./email-preview.js").then((m) => ({ default: m.EmailPreview })),
+);
+const TOOLS = {
+  brand: { label: "Brand builder", Page: BrandBuilder },
+  native: { label: "Native gallery", Page: NativeGallery },
+  email: { label: "Email preview", Page: EmailPreview },
+} as const;
+type Tool = keyof typeof TOOLS;
 function Playground({
   params,
   navigate,
@@ -39,7 +51,8 @@ function Playground({
   navigate: (href: string) => void | false;
 }) {
   const component = params.get("component");
-  const tool = params.get("page") === "brand" ? "brand" : null;
+  const page = params.get("page") ?? "";
+  const tool = page in TOOLS ? (page as Tool) : null;
   const category = findCategory(params.get("category"));
   const kitId = kits.some((k) => k.id === params.get("kit"))
     ? params.get("kit")
@@ -63,11 +76,11 @@ function Playground({
           href: homeHref(),
           current: !component && !category && !kitId && !tool,
         },
-        {
-          label: "Brand builder",
-          href: url("page", "brand"),
-          current: tool === "brand",
-        },
+        ...(Object.keys(TOOLS) as Tool[]).map((id) => ({
+          label: TOOLS[id].label,
+          href: url("page", id),
+          current: tool === id,
+        })),
       ],
     },
     ...kits.flatMap((kit) =>
@@ -101,16 +114,17 @@ function Playground({
       : undefined;
   };
   let content;
-  if (tool === "brand") {
+  if (tool) {
+    const { label, Page } = TOOLS[tool];
     content = (
       <Suspense
         fallback={
-          <p role="status" aria-label="Loading brand builder">
-            Loading brand builder…
+          <p role="status" aria-label={`Loading ${label.toLowerCase()}`}>
+            Loading {label.toLowerCase()}…
           </p>
         }
       >
-        <BrandBuilder />
+        <Page />
       </Suspense>
     );
   } else if (component) {
