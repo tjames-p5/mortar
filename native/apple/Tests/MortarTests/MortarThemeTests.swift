@@ -2,6 +2,7 @@ import SwiftUI
 import XCTest
 @testable import Mortar
 
+@MainActor
 final class MortarThemeTests: XCTestCase {
     func testNeutralThemeUsesTheGeneratedTokens() {
         let theme = MortarTheme.neutral
