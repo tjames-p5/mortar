@@ -75,7 +75,7 @@ final class MortarSnapshotTests: XCTestCase {
             } actions: {
                 MortarButton("Change", size: .sm) {}
             } footer: {
-                Text("Invoices go to billing@example.com")
+                Text(verbatim: "Invoices go to billing@example.com")
             }
             MortarCard(padding: .compact, tone: .muted) {
                 Text("A compact, muted card without a header.")

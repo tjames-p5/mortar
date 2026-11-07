@@ -6,7 +6,7 @@ import SwiftUI
 public struct MortarTextField: View {
     private let label: Text
     @Binding private var text: String
-    private let prompt: Text?
+    private let prompt: String?
     private let hint: Text?
     private let error: Text?
     private let isRequired: Bool
@@ -22,7 +22,7 @@ public struct MortarTextField: View {
     public init(
         _ label: LocalizedStringKey,
         text: Binding<String>,
-        prompt: LocalizedStringKey? = nil,
+        prompt: LocalizedStringResource? = nil,
         hint: LocalizedStringKey? = nil,
         error: LocalizedStringKey? = nil,
         isRequired: Bool = false,
@@ -30,7 +30,8 @@ public struct MortarTextField: View {
     ) {
         self.label = Text(label)
         self._text = text
-        self.prompt = prompt.map { Text($0) }
+        // Verbatim, so an example address or URL isn't styled as a link.
+        self.prompt = prompt.map { String(localized: $0) }
         self.hint = hint.map { Text($0) }
         self.error = error.map { Text($0) }
         self.isRequired = isRequired
@@ -83,10 +84,11 @@ public struct MortarTextField: View {
     }
 
     @ViewBuilder private var field: some View {
+        let placeholder = prompt.map { Text(verbatim: $0).foregroundStyle(mortar.palette[\.muted]) }
         if isSecure {
-            SecureField(text: $text, prompt: prompt) { label }
+            SecureField(text: $text, prompt: placeholder) { label }
         } else {
-            TextField(text: $text, prompt: prompt) { label }
+            TextField(text: $text, prompt: placeholder) { label }
         }
     }
 
