@@ -106,28 +106,28 @@ export function kotlin(theme, s) {
 package codes.tony.mortar
 
 /** One appearance's colours, as 0xFFRRGGBB, the form Compose's Color(Long) takes. */
-data class MortarPalette(
-${keys.map((k) => `    val ${k}: Long,`).join("\n")}
+public data class MortarPalette(
+${keys.map((k) => `    public val ${k}: Long,`).join("\n")}
 )
 
 /** Control height, padding, font size and row padding, in dp. */
-data class MortarDensity(
-${densityKeys.map((k) => `    val ${k}: Float,`).join("\n")}
+public data class MortarDensity(
+${densityKeys.map((k) => `    public val ${k}: Float,`).join("\n")}
 )
 
 /** Mortar's neutral palettes, densities and scales. Sizes are in dp. */
-object MortarTokens {
-    val light = ${palette(theme.light)}
-    val dark = ${palette(theme.dark)}
+public object MortarTokens {
+    public val light: MortarPalette = ${palette(theme.light)}
+    public val dark: MortarPalette = ${palette(theme.dark)}
 
 ${Object.entries(s.density)
-  .map(([k, d]) => `    val ${k} = ${density(d)}`)
+  .map(([k, d]) => `    public val ${k}: MortarDensity = ${density(d)}`)
   .join("\n")}
 
 ${scales(s)
   .map(
     ([name, v, kind]) =>
-      `    const val ${name}${kind === "int" ? `: Int = ${v}` : ` = ${float(v)}`}`,
+      `    public const val ${name}${kind === "int" ? `: Int = ${v}` : `: Float = ${float(v)}`}`,
   )
   .join("\n")}
 }

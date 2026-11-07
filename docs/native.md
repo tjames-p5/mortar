@@ -1,6 +1,6 @@
 # Native apps
 
-Mortar is coming to iPhone, iPad and Android as a SwiftUI package and a Jetpack Compose library, tracked in [#95](https://github.com/tonycodes/mortar/issues/95). This page covers what exists so far: the design tokens both libraries are built on, and the first SwiftUI components.
+Mortar is coming to iPhone, iPad and Android as a SwiftUI package and a Jetpack Compose library, tracked in [#95](https://github.com/tonycodes/mortar/issues/95). This page covers what exists so far: the design tokens both libraries are built on, and the first SwiftUI and Jetpack Compose components.
 
 ## Tokens
 
@@ -63,6 +63,41 @@ A brand is a `MortarTheme`: its light and dark `MortarPalette`s, font family nam
 `native/apple/Tests/MortarTests` renders each component on an iPhone simulator in light, dark and a large accessibility text size, and a branded screen on iPad, with [swift-snapshot-testing](https://github.com/pointfreeco/swift-snapshot-testing). The **Mortar for SwiftUI** workflow runs them on macOS on every change to `Package.swift` or `native/apple`, and builds the package for Mac.
 
 Rendering differs between iOS versions, so the reference images are recorded on CI's simulator, not on a developer's Mac. To add or update one, delete the old image (or add the test), push, and download the `mortar-swift-snapshots-<sha>` artifact from the failed run: it holds the newly recorded images and any failed comparisons. Review them, commit them under `__Snapshots__`, and push again.
+
+## Jetpack Compose
+
+The library is in `native/android` (module `mortar`, package `codes.tony.mortar`) for Android 7.0 (API 24) and later. Until its Maven repository is chosen ([#95](https://github.com/tonycodes/mortar/issues/95)), build it into your local Maven repository with Gradle 8.11 and JDK 17:
+
+```sh
+gradle -p native/android :mortar:publishToMavenLocal -Pversion=0.0.0-local
+```
+
+```kotlin
+implementation("codes.tony:mortar:0.0.0-local")
+```
+
+Theme the app once near its root, then use the components:
+
+```kotlin
+setContent {
+    MortarTheme(brand = MortarBrand.Neutral) {
+        MortarButton("Save", onClick = ::save, variant = MortarButtonVariant.Primary)
+    }
+}
+```
+
+A brand is a `MortarBrand`: its light and dark `MortarPalette`s, `FontFamily`s and density. `MortarTheme` follows the system's dark theme unless you pass `darkTheme`; components read `Mortar.palette` and `Mortar.brand`. Text sizes are in sp, so they follow the font scale.
+
+The components and their parameters match the SwiftUI table above, with Compose names: `MortarButton`, `MortarBadge`, `MortarCard`, `MortarTextField`, `MortarSwitch`, `MortarAvatar`, `MortarNotice` and `MortarEmptyState`. Differences:
+
+- Medium controls and touch targets are 48dp, Material's minimum, instead of 44.
+- `MortarAvatar` takes a `Painter`: load the picture with your image library (Coil, Glide) and pass null while it loads or when it fails, to show the initials.
+- Icons are `ImageVector`s, such as `Icons.Filled.Share`.
+- `MortarNotice(announce = true)` is a live region: polite, or assertive for `Danger`.
+
+### Snapshot tests
+
+`native/android/mortar/src/test` holds unit tests and [Paparazzi](https://github.com/cashapp/paparazzi) snapshots of each component on a Pixel 5 in light, dark and twice the font size, and a branded screen on a Pixel C tablet. Paparazzi renders on the JVM, without an emulator, so the references in `src/test/snapshots` match on any machine. The **Mortar for Compose** workflow runs `gradle :mortar:verifyPaparazziDebug` on every change to `native/android`. When it fails, it records what the code renders now and uploads the images as `mortar-compose-snapshots-<sha>` to review and commit. Locally, `gradle -p native/android :mortar:recordPaparazziDebug` does the same.
 
 ## Brands
 

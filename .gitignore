@@ -20,3 +20,5 @@ site.tar.gz
 # OS and local tool caches
 .DS_Store
 .code-review-graph/
+.build/
+.swiftpm/
