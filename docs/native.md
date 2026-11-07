@@ -2,6 +2,8 @@
 
 Mortar is coming to iPhone, iPad and Android as a SwiftUI package and a Jetpack Compose library, tracked in [#95](https://github.com/tonycodes/mortar/issues/95). This page covers what exists so far: the design tokens both libraries are built on, and the first SwiftUI and Jetpack Compose components.
 
+The playground's **Native gallery** (`?page=native`) shows each component on the web beside its SwiftUI and Compose snapshot references, in light, dark and large text.
+
 ## Tokens
 
 SwiftUI and Compose cannot read `tokens.css`, so each library gets its tokens as literal values in a generated file:
@@ -57,6 +59,8 @@ A brand is a `MortarTheme`: its light and dark `MortarPalette`s, font family nam
 | `MortarAvatar`                                             | Avatar         | Image URL with initials while loading or on failure, five sizes, circle or square, online or offline status, decorative.                                                  |
 | `MortarNotice`                                             | Notice         | Tone, message, actions, dismiss button, VoiceOver announcement.                                                                                                           |
 | `MortarEmptyState`                                         | EmptyState     | SF Symbol, description, action, dashed, centred or leading.                                                                                                               |
+
+On both platforms the switch sits at the end of its row, after the label, as in iOS and Android settings; on the web it comes first.
 
 ### Snapshot tests
 
