@@ -34,6 +34,12 @@ final class MortarThemeTests: XCTestCase {
         XCTAssertEqual(palette.accentWash, .black)
     }
 
+    func testButtonsDefaultToPrimaryAsOnTheWeb() {
+        XCTAssertEqual(MortarButtonStyle().variant, .primary)
+        XCTAssertEqual(MortarButtonStyle.mortar().variant, .primary)
+        XCTAssertEqual(MortarButton("Save") {}.style.variant, .primary)
+    }
+
     func testAvatarInitials() {
         XCTAssertEqual(MortarAvatar(name: "Ada Lovelace").initials, "AL")
         XCTAssertEqual(MortarAvatar(name: "grace brewster murray hopper").initials, "GH")

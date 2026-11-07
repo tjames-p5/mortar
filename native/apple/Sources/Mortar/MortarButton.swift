@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// A button's emphasis, as on the web: one primary action per view.
+/// A button's emphasis, as on the web: one primary action per view, and
+/// primary by default.
 public enum MortarButtonVariant: Sendable, CaseIterable {
     case primary, secondary, ghost, danger
     /// The brand's flat accent under on-accent text.
@@ -21,7 +22,7 @@ public struct MortarButtonStyle: ButtonStyle {
     public var isLoading: Bool
 
     public init(
-        _ variant: MortarButtonVariant = .secondary,
+        _ variant: MortarButtonVariant = .primary,
         size: MortarControlSize = .md,
         isLoading: Bool = false
     ) {
@@ -42,7 +43,7 @@ public struct MortarButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == MortarButtonStyle {
     /// Mortar's button look.
     public static func mortar(
-        _ variant: MortarButtonVariant = .secondary,
+        _ variant: MortarButtonVariant = .primary,
         size: MortarControlSize = .md,
         isLoading: Bool = false
     ) -> MortarButtonStyle {
@@ -137,7 +138,7 @@ public struct MortarButton: View {
     private let title: LocalizedStringKey
     private let systemImage: String?
     private let iconOnly: Bool
-    private let style: MortarButtonStyle
+    let style: MortarButtonStyle
     private let role: ButtonRole?
     private let action: () -> Void
 
@@ -146,7 +147,7 @@ public struct MortarButton: View {
     public init(
         _ title: LocalizedStringKey,
         systemImage: String? = nil,
-        variant: MortarButtonVariant = .secondary,
+        variant: MortarButtonVariant = .primary,
         size: MortarControlSize = .md,
         isLoading: Bool = false,
         iconOnly: Bool = false,
