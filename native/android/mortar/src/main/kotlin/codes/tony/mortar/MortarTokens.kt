@@ -5,45 +5,45 @@
 package codes.tony.mortar
 
 /** One appearance's colours, as 0xFFRRGGBB, the form Compose's Color(Long) takes. */
-data class MortarPalette(
-    val paper: Long,
-    val surface: Long,
-    val sunken: Long,
-    val line: Long,
-    val lineStrong: Long,
-    val ink: Long,
-    val secondary: Long,
-    val muted: Long,
-    val success: Long,
-    val warning: Long,
-    val danger: Long,
-    val info: Long,
-    val onFeedback: Long,
-    val primary: Long,
-    val onPrimary: Long,
-    val codeBackground: Long,
-    val codeInk: Long,
-    val codeDim: Long,
-    val primaryHover: Long,
-    val primaryActive: Long,
-    val accent: Long,
-    val onAccent: Long,
-    val focus: Long,
-    val link: Long,
-    val selected: Long,
+public data class MortarPalette(
+    public val paper: Long,
+    public val surface: Long,
+    public val sunken: Long,
+    public val line: Long,
+    public val lineStrong: Long,
+    public val ink: Long,
+    public val secondary: Long,
+    public val muted: Long,
+    public val success: Long,
+    public val warning: Long,
+    public val danger: Long,
+    public val info: Long,
+    public val onFeedback: Long,
+    public val primary: Long,
+    public val onPrimary: Long,
+    public val codeBackground: Long,
+    public val codeInk: Long,
+    public val codeDim: Long,
+    public val primaryHover: Long,
+    public val primaryActive: Long,
+    public val accent: Long,
+    public val onAccent: Long,
+    public val focus: Long,
+    public val link: Long,
+    public val selected: Long,
 )
 
 /** Control height, padding, font size and row padding, in dp. */
-data class MortarDensity(
-    val control: Float,
-    val pad: Float,
-    val fontSize: Float,
-    val rowPad: Float,
+public data class MortarDensity(
+    public val control: Float,
+    public val pad: Float,
+    public val fontSize: Float,
+    public val rowPad: Float,
 )
 
 /** Mortar's neutral palettes, densities and scales. Sizes are in dp. */
-object MortarTokens {
-    val light = MortarPalette(
+public object MortarTokens {
+    public val light: MortarPalette = MortarPalette(
         paper = 0xFFFFFFFF,
         surface = 0xFFFFFFFF,
         sunken = 0xFFF5F5F7,
@@ -70,7 +70,7 @@ object MortarTokens {
         link = 0xFF000000,
         selected = 0xFFF2F2F4,
     )
-    val dark = MortarPalette(
+    public val dark: MortarPalette = MortarPalette(
         paper = 0xFF000000,
         surface = 0xFF0E0E10,
         sunken = 0xFF1C1C1E,
@@ -98,37 +98,37 @@ object MortarTokens {
         selected = 0xFF1C1C1E,
     )
 
-    val compact = MortarDensity(control = 30f, pad = 10f, fontSize = 13f, rowPad = 10f)
-    val comfortable = MortarDensity(control = 36f, pad = 14f, fontSize = 14f, rowPad = 14f)
-    val spacious = MortarDensity(control = 44f, pad = 18f, fontSize = 15f, rowPad = 18f)
+    public val compact: MortarDensity = MortarDensity(control = 30f, pad = 10f, fontSize = 13f, rowPad = 10f)
+    public val comfortable: MortarDensity = MortarDensity(control = 36f, pad = 14f, fontSize = 14f, rowPad = 14f)
+    public val spacious: MortarDensity = MortarDensity(control = 44f, pad = 18f, fontSize = 15f, rowPad = 18f)
 
-    const val space1 = 4f
-    const val space2 = 8f
-    const val space3 = 12f
-    const val space4 = 16f
-    const val space6 = 24f
-    const val space8 = 32f
-    const val space10 = 40f
-    const val space12 = 48f
-    const val radiusXs = 2f
-    const val radiusSm = 4f
-    const val radius = 8f
-    const val radiusLg = 12f
-    const val radiusXl = 16f
-    const val radiusFull = 999f
-    const val weightRegular: Int = 400
-    const val weightMedium: Int = 500
-    const val weightSemibold: Int = 600
-    const val weightBold: Int = 700
-    const val trackingDisplay = -0.04f
-    const val trackingHeading = -0.02f
-    const val trackingBody = 0f
-    const val trackingCaps = 0.04f
-    const val leadingDisplay = 1.1f
-    const val leadingHeading = 1.3f
-    const val leadingBody = 1.6f
-    const val icon = 16f
-    const val focusOffset = 3f
-    const val touchTarget = 44f
-    const val scrimOpacity = 0.5f
+    public const val space1: Float = 4f
+    public const val space2: Float = 8f
+    public const val space3: Float = 12f
+    public const val space4: Float = 16f
+    public const val space6: Float = 24f
+    public const val space8: Float = 32f
+    public const val space10: Float = 40f
+    public const val space12: Float = 48f
+    public const val radiusXs: Float = 2f
+    public const val radiusSm: Float = 4f
+    public const val radius: Float = 8f
+    public const val radiusLg: Float = 12f
+    public const val radiusXl: Float = 16f
+    public const val radiusFull: Float = 999f
+    public const val weightRegular: Int = 400
+    public const val weightMedium: Int = 500
+    public const val weightSemibold: Int = 600
+    public const val weightBold: Int = 700
+    public const val trackingDisplay: Float = -0.04f
+    public const val trackingHeading: Float = -0.02f
+    public const val trackingBody: Float = 0f
+    public const val trackingCaps: Float = 0.04f
+    public const val leadingDisplay: Float = 1.1f
+    public const val leadingHeading: Float = 1.3f
+    public const val leadingBody: Float = 1.6f
+    public const val icon: Float = 16f
+    public const val focusOffset: Float = 3f
+    public const val touchTarget: Float = 44f
+    public const val scrimOpacity: Float = 0.5f
 }

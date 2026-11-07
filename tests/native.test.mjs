@@ -254,7 +254,7 @@ test("the Swift and Kotlin token files are generated from the native theme", asy
   const kotlin = await readSource(KOTLIN_FILE);
   assert.match(kotlin, /^package codes\.tony\.mortar$/m);
   assert.match(kotlin, /paper = 0xFF000000,/);
-  assert.match(kotlin, /const val weightSemibold: Int = 600/);
+  assert.match(kotlin, /public const val weightSemibold: Int = 600/);
 });
 
 /* The compilers run where they exist; CI sets MORTAR_NATIVE_COMPILE=1 so a

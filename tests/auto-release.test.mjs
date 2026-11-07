@@ -1151,19 +1151,26 @@ test("R-AR-17 release.yml retains credential isolation and serialized publishing
     [
       "check.yml",
       "deploy-playground.yml",
+      "native-android.yml",
       "native-apple.yml",
       "release.yml",
       "visual-candidates.yml",
     ].sort(),
-    "R-AR-17 exactly five workflow files",
+    "R-AR-17 exactly six workflow files",
   );
-  // The Swift package's checks run on macOS beside the release path: read
-  // only, no secrets, and never the workflow the release waits for.
-  const swift = read(".github/workflows/native-apple.yml");
-  assert.match(swift, /^permissions:\n  contents: read\n(?!  )/m);
-  assert.doesNotMatch(swift, /secrets\.|\bgit\s+(?:push|commit|tag)\b/);
-  assert.doesNotMatch(swift, /^name: Mortar contribution checks$/m);
-  assert.match(swift, /persist-credentials: false/);
+  // The native libraries' checks run beside the release path: read only, no
+  // secrets, and never the workflow the release waits for.
+  for (const file of ["native-apple.yml", "native-android.yml"]) {
+    const native = read(`.github/workflows/${file}`);
+    assert.match(native, /^permissions:\n  contents: read\n(?!  )/m, file);
+    assert.doesNotMatch(
+      native,
+      /secrets\.|\bgit\s+(?:push|commit|tag)\b/,
+      file,
+    );
+    assert.doesNotMatch(native, /^name: Mortar contribution checks$/m, file);
+    assert.match(native, /persist-credentials: false/, file);
+  }
 });
 
 test("R-AR-18 release.mjs checks unexpected changes and retains provenance", () => {
