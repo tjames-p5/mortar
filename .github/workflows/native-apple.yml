@@ -1,0 +1,57 @@
+name: Mortar for SwiftUI
+on:
+  pull_request:
+    paths:
+      - Package.swift
+      - native/apple/**
+      - .github/workflows/native-apple.yml
+  push:
+    branches: [main]
+    paths:
+      - Package.swift
+      - native/apple/**
+      - .github/workflows/native-apple.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: native-apple-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  # The snapshot references are recorded on this simulator; rendering differs
+  # between iOS versions, so change it only together with re-recorded images.
+  SIMULATOR: iPhone 16
+jobs:
+  test:
+    name: Swift package and snapshots
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          xcrun simctl list runtimes available
+          xcodebuild -list
+      - name: Build for Mac
+        run: xcodebuild build -scheme Mortar -destination 'platform=macOS' -quiet
+      - name: Test on the iOS simulator
+        env:
+          # xcodebuild passes TEST_RUNNER_ variables to the tests, unprefixed.
+          TEST_RUNNER_SNAPSHOT_ARTIFACTS: ${{ runner.temp }}/snapshot-failures
+        run: |
+          xcodebuild test -scheme Mortar \
+            -destination "platform=iOS Simulator,name=$SIMULATOR,OS=latest"
+      # New references (recorded where none exist, which fails the test) and
+      # failed comparisons, to review and commit. See docs/native.md.
+      - name: Upload snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mortar-swift-snapshots-${{ github.sha }}
+          path: |
+            native/apple/Tests/MortarTests/__Snapshots__
+            ${{ runner.temp }}/snapshot-failures
+          if-no-files-found: ignore

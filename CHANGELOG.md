@@ -6,6 +6,7 @@ Mortar follows [semantic versioning](https://semver.org/). Before 1.0, a minor r
 
 ### Added
 
+- **Mortar for SwiftUI** ([#95](https://github.com/tonycodes/mortar/issues/95)): a Swift package (`Package.swift` at the repo root) for iOS 17, iPadOS 17 and macOS 14. `MortarTheme` carries a brand's palettes, fonts and density through the environment, and `MortarButton`, `MortarBadge`, `MortarCard`, `MortarTextField`, `MortarSwitch`, `MortarAvatar`, `MortarNotice` and `MortarEmptyState` mirror the web components, with button and toggle styles for plain SwiftUI controls. Snapshot tests run on an iOS simulator in CI. See [Native apps](docs/native.md).
 - **Native tokens** for the coming SwiftUI and Jetpack Compose libraries ([#95](https://github.com/tonycodes/mortar/issues/95)). `MortarTokens.swift` and `MortarTokens.kt` hold the neutral light and dark palettes, densities and scales, generated from `tokens.css` by `npm run native:tokens`, and a test fails when they drift. Nothing changes in the npm package's API. See [Native apps](docs/native.md).
 - **Transactional email** (`@tonycodes-ui/mortar/email`, [#91](https://github.com/tonycodes/mortar/issues/91)), built on React Email, which becomes an optional peer dependency (`@react-email/components`). The app entry point doesn't load it.
   - `emailTheme(brand?)` resolves a `BrandDefinition` to literal light-appearance colours and font stacks, as `tokens.css` does. Derived tints are computed in JS, and `oklch()`, `oklab()`, `hsl()` and `rgb()` convert to hex.
