@@ -1151,11 +1151,19 @@ test("R-AR-17 release.yml retains credential isolation and serialized publishing
     [
       "check.yml",
       "deploy-playground.yml",
+      "native-apple.yml",
       "release.yml",
       "visual-candidates.yml",
     ].sort(),
-    "R-AR-17 exactly four workflow files",
+    "R-AR-17 exactly five workflow files",
   );
+  // The Swift package's checks run on macOS beside the release path: read
+  // only, no secrets, and never the workflow the release waits for.
+  const swift = read(".github/workflows/native-apple.yml");
+  assert.match(swift, /^permissions:\n  contents: read\n(?!  )/m);
+  assert.doesNotMatch(swift, /secrets\.|\bgit\s+(?:push|commit|tag)\b/);
+  assert.doesNotMatch(swift, /^name: Mortar contribution checks$/m);
+  assert.match(swift, /persist-credentials: false/);
 });
 
 test("R-AR-18 release.mjs checks unexpected changes and retains provenance", () => {
