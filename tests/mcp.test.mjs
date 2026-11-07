@@ -256,7 +256,10 @@ test("npm pack ships the CLI, its data and the docs it reads", () => {
   ])
     assert.ok(files.has(file), `${file} is not packed`);
   for (const file of files)
-    assert.doesNotMatch(file, /^(tests|scripts|playground|docs\/images)\//);
+    assert.doesNotMatch(
+      file,
+      /^(tests|scripts|playground|native|docs\/images)\//,
+    );
   assert.equal(pkg.bin.mortar, "./bin/mortar.mjs");
   assert.match(
     readFileSync(join(ROOT, pkg.bin.mortar), "utf8"),
