@@ -21,7 +21,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
-        freeCompilerArgs += "-Xexplicit-api=strict"
     }
     buildFeatures {
         compose = true
@@ -31,6 +30,11 @@ android {
             withSourcesJar()
         }
     }
+}
+
+// Every public declaration says so; tests are exempt.
+kotlin {
+    explicitApi()
 }
 
 dependencies {
