@@ -67,6 +67,8 @@ public fun MortarStackedList(
 }
 
 /** A bordered list of rows under group headings, as the web StackedList's `groups`. */
+// Both overloads take a List, so the JVM needs a distinct name for this one.
+@JvmName("MortarStackedListGroups")
 @Composable
 public fun MortarStackedList(
     groups: List<MortarListGroup>,
