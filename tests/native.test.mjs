@@ -257,6 +257,34 @@ test("the Swift and Kotlin token files are generated from the native theme", asy
   assert.match(kotlin, /public const val weightSemibold: Int = 600/);
 });
 
+test("native buttons default to the web Button's variant", async () => {
+  const web = /function Button\(\s*\{\s*variant = "(\w+)"/.exec(
+    await readSource("src/primitives.tsx"),
+  )?.[1];
+  assert.equal(web, "primary");
+  const swift = await readSource(
+    "native/apple/Sources/Mortar/MortarButton.swift",
+  );
+  const swiftDefaults = [
+    ...swift.matchAll(/variant: MortarButtonVariant = \.(\w+)/g),
+  ];
+  assert.equal(
+    swiftDefaults.length,
+    3,
+    "MortarButtonStyle, .mortar() and MortarButton",
+  );
+  for (const [, variant] of swiftDefaults) assert.equal(variant, web);
+  const kotlin = await readSource(
+    "native/android/mortar/src/main/kotlin/codes/tony/mortar/MortarButton.kt",
+  );
+  assert.equal(
+    /variant: MortarButtonVariant = MortarButtonVariant\.(\w+)/.exec(
+      kotlin,
+    )?.[1],
+    "Primary",
+  );
+});
+
 /* The compilers run where they exist; CI sets MORTAR_NATIVE_COMPILE=1 so a
    missing compiler fails there instead of skipping. */
 const REQUIRED = process.env.MORTAR_NATIVE_COMPILE === "1";

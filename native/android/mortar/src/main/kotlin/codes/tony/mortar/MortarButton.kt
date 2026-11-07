@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.geometry.CornerRadius
 
-/** A button's emphasis, as on the web: one primary action per screen. */
+/** A button's emphasis, as on the web: one primary action per screen, and primary by default. */
 public enum class MortarButtonVariant { Primary, Secondary, Ghost, Danger, Accent }
 
 /**
@@ -55,7 +55,7 @@ public fun MortarButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    variant: MortarButtonVariant = MortarButtonVariant.Secondary,
+    variant: MortarButtonVariant = MortarButtonVariant.Primary,
     size: MortarControlSize = MortarControlSize.Md,
     enabled: Boolean = true,
     loading: Boolean = false,
