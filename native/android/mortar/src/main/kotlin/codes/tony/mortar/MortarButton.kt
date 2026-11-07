@@ -105,7 +105,7 @@ public fun MortarButton(
                     drawRoundRect(
                         color = dashed,
                         topLeft = androidx.compose.ui.geometry.Offset(inset, inset),
-                        size = androidx.compose.ui.geometry.Size(size.width - 2 * inset, size.height - 2 * inset),
+                        size = androidx.compose.ui.geometry.Size(this.size.width - 2 * inset, this.size.height - 2 * inset),
                         cornerRadius = CornerRadius(radius.toPx()),
                         style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f))),
                     )
