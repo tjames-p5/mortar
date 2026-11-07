@@ -64,6 +64,7 @@ public struct MortarCard<Content: View, Actions: View, Footer: View>: View {
                 Rectangle().fill(p[\.line]).frame(height: 1)
             }
             content
+                .font(mortar.font(mortar.theme.density.fontSize))
                 .padding(inset)
                 .frame(maxWidth: .infinity, alignment: .leading)
             if hasFooter {
