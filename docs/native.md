@@ -111,6 +111,16 @@ The components and their parameters match the SwiftUI table above, with Compose 
 
 `native/android/mortar/src/test` holds unit tests and [Paparazzi](https://github.com/cashapp/paparazzi) snapshots of each component on a Pixel 5 in light, dark and twice the font size, and a branded screen on a Pixel C tablet. Paparazzi renders on the JVM, without an emulator, so the references in `src/test/snapshots` match on any machine. The **Mortar for Compose** workflow runs `gradle :mortar:verifyPaparazziDebug` on every change to `native/android`. When it fails, it records what the code renders now and uploads the images as `mortar-compose-snapshots-<sha>` to review and commit. Locally, `gradle -p native/android :mortar:recordPaparazziDebug` does the same.
 
+## For agents
+
+A component with a native version names it in its manifest:
+
+```json
+"platforms": { "swiftui": "MortarTextField", "compose": "MortarTextField" }
+```
+
+`get_component` shows it as `native`, with each import, and a build packet for a brief about an iOS, iPadOS or Android app adds this guide and a `native` section listing every component the libraries have. `tests/native.test.mjs` checks that each named view or composable exists, and that every public one is named by a manifest.
+
 ## Brands
 
 `nativeTheme(brand)` in `src/native-theme.ts` resolves a `BrandDefinition` to literal light and dark palettes the way `tokens.css` resolves it: omitted values keep the defaults or derive from primary, and `color-mix(in oklab, …)` tints are computed in JS. Brand colours must be literal and opaque (hex, `white`, `black`, `rgb()`, `hsl()`, `oklab()` or `oklch()`). Accents use the flat `accent`, not the gradient. Fonts become family names plus a generic family; the app bundles the fonts itself.
