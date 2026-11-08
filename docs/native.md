@@ -77,15 +77,39 @@ Rendering differs between iOS versions, so the reference images are recorded on 
 
 ## Jetpack Compose
 
-The library is in `native/android` (module `mortar`, package `codes.tony.mortar`) for Android 7.0 (API 24) and later. Until its Maven repository is chosen ([#95](https://github.com/tonycodes/mortar/issues/95)), build it into your local Maven repository with Gradle 8.11 and JDK 17:
+The library is in `native/android` (module `mortar`, package `codes.tony.mortar`) for Android 7.0 (API 24) and later. Each Mortar release publishes it to [GitHub Packages](https://github.com/tonycodes/mortar/packages) at the npm package's version. GitHub's Maven registry asks for a token even for public packages, so add the repository in `settings.gradle.kts` with a GitHub username and a personal access token that has `read:packages`, kept out of source control (here in `~/.gradle/gradle.properties`):
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://maven.pkg.github.com/tonycodes/mortar") {
+            credentials {
+                username = providers.gradleProperty("gpr.user").get()
+                password = providers.gradleProperty("gpr.key").get()
+            }
+        }
+    }
+}
+```
+
+Then the dependency, at the same version as `@tonycodes-ui/mortar`:
+
+```kotlin
+// The release that adds publishing (#95) is the first in GitHub Packages.
+implementation("codes.tony:mortar:0.21.0")
+```
+
+To try unreleased changes, build the library into your local Maven repository with Gradle 8.11 and JDK 17 and depend on `0.0.0-local`:
 
 ```sh
 gradle -p native/android :mortar:publishToMavenLocal -Pversion=0.0.0-local
 ```
 
-```kotlin
-implementation("codes.tony:mortar:0.0.0-local")
-```
+### Publishing
+
+`.github/workflows/publish-android.yml` runs after each successful **Release package** run on main. It finds the release tag on the released commit (a run that released nothing leaves none), skips a version GitHub Packages already has, and publishes `codes.tony:mortar:<version>` with `gradle :mortar:publishReleasePublicationToGitHubPackagesRepository`. It publishes with the run's own `GITHUB_TOKEN` and `packages: write`, so no secret is stored, and it has no manual trigger, so a version is only published from its release. The release policy test (R-AR-17) keeps it that way: read-only contents, no ref writes, no secrets.
 
 Theme the app once near its root, then use the components:
 
